@@ -61,13 +61,13 @@ class Order(object):
         self.symbol = symbol
         self.type = type
 
-    def send_order(self, order: Order):
-        try:
-            self.client.create_order(
-                order.type, )
-        except Exception as e:
-            logger.error(f'action=send_order error={e}')
-            raise
+    # def send_order(self, order: Order):
+    #     try:
+    #         self.client.create_order(
+    #             order.type, )
+    #     except Exception as e:
+    #         logger.error(f'action=send_order error={e}')
+    #         raise
 
 class APIClient(object):
     def __init__(self, api_key, secret):

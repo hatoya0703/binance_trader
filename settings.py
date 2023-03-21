@@ -9,8 +9,11 @@ conf.read('settings.ini')
 binance_access_key = conf['binance']['access_key']
 binance_secret_access_key = conf['binance']['secret_access_key']
 
-db_name = conf['db']['name']
+db_name = conf['db']['db_name']
 db_driver = conf['db']['driver']
+db_user = conf['db']['user']
+db_host = conf['db']['host']
+db_password = conf['db']['password']
 
 web_port = int(conf['web']['port'])
 

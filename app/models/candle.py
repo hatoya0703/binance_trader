@@ -1,5 +1,6 @@
 import logging
 
+from sqlalchemy import desc
 from sqlalchemy import Column
 from sqlalchemy import DateTime
 from sqlalchemy import Float
@@ -47,6 +48,29 @@ class BaseCandleMixin(object):
     def save(self):
         with session_scope() as session:
             session.add(self)
+
+    @classmethod
+    def get_all_candles(cls, limit=100):
+        with session_scope() as session:
+             candles = session.query(cls).order_by(
+                 desc(cls.time)
+             ).limit(limit).all()
+
+             if candles is None:
+                 return None
+
+             candles.reverse()
+             return candles
+    @property
+    def value(self):
+        return {
+            'time': self.time,
+            'open': self.open,
+            'close': self.close,
+            'high': self.high,
+            'low': self.low,
+            'volume': self.volume
+        }
 
 class BtcBusdBaseCandle5S(BaseCandleMixin, Base):
     __tablename__ = 'BTC_BUSD_1S'

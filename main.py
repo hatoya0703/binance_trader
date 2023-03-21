@@ -8,7 +8,7 @@ from functools import  partial
 import settings
 from binance.binance import APIClient
 from binance.binance import Order
-from app.models.base import BtcBusdBaseCandle1M
+from app.models.candle import BtcBusdBaseCandle1M
 
 logging.basicConfig(level=logging.INFO, stream=sys.stdout )
 
@@ -20,7 +20,7 @@ if __name__ == "__main__":
     candle = BtcBusdBaseCandle1M.get(now2)
     print(candle.time)
     print(candle.open)
-    candle.open = 100.01
+    candle.open = 1000.01
     candle.save()
  
     update_candle = BtcBusdBaseCandle1M.get(now2)

@@ -19,6 +19,17 @@ Base = declarative_base()
 engine = create_engine(f'mysql+mysqlconnector://{settings.db_user}:{settings.db_password}@{settings.db_host}/{settings.db_name}')
 Session = scoped_session(sessionmaker(bind=engine))
 
+@contextmanager
+def session_scope():
+    session = Session()
+    try:
+        yield session
+        session.commit()
+    except Exception as e:
+        logger.error(f'action=session_scope error={e}')
+        session.rollback()
+        raise
+
 class BaseCandleMixin(object):
     time = Column(DateTime, primary_key=True, nullable=False)
     open = Column(Float)
@@ -38,22 +49,23 @@ class BaseCandleMixin(object):
         )
 
         try:
-            Session.add(candle)
-            Session.commit()
+            with session_scope() as session:
+                session.add(candle)
         except IntegrityError:
             return False
 
     @classmethod
     def get(cls, time):
-        candle = Session.query(cls).filter(cls.time == time).first()
+        with session_scope() as session:
+            candle = session.query(cls).filter(cls.time == time).first()
 
-        if candle is None:
-            return None
-        return candle
+            if candle is None:
+                return None
+            return candle
 
     def save(self):
-        Session.add(self)
-        Session.commit()
+        with session_scope() as session:
+            session.add(self)
 
 class BtcBusdBaseCandle5S(BaseCandleMixin, Base):
     __tablename__ = 'BTC_BUSD_1S'

@@ -1,23 +1,27 @@
 # 標準ライブラリからのインポート
 import logging
 import sys
+import datetime
 from functools import  partial
 
 # ローカルファイルからのインポート　
 import settings
 from binance.binance import APIClient
 from binance.binance import Order
+from app.models.base import BtcBusdBaseCandle1M
 
 logging.basicConfig(level=logging.INFO, stream=sys.stdout )
 
-if __name__ == "__main__" :
-    api_client = APIClient(settings.binance_access_key, settings.binance_secret_access_key)
-    def trade(ticker):
-        print(f'mid_price={ticker.mid_price}')
-        print(f'ask={ticker.ask}')
-        print(f'bid={ticker.bid}')
+if __name__ == "__main__":
+    import app.models
 
-    callback = partial(trade)
-    api_client.get_ticker(callback)
-
-    order = Order(1000, 'buy', 0.0001)
+    now1 = datetime.datetime(2021,1,2,3,4,5)
+    # BtcBusdBaseCandle1M.create(now1, 1.1,2.2,3.3,4.4,5)
+    candle = BtcBusdBaseCandle1M.get(now1)
+    print(candle.time)
+    print(candle.open)
+    candle.open = 10000.1
+    candle.save()
+ 
+    updated_candle = BtcBusdBaseCandle1M.get(now1)
+    print(updated_candle.open)

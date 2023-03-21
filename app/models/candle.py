@@ -72,7 +72,7 @@ class BaseCandleMixin(object):
             'volume': self.volume
         }
 
-class BtcBusdBaseCandle5S(BaseCandleMixin, Base):
+class BtcBusdBaseCandle1S(BaseCandleMixin, Base):
     __tablename__ = 'BTC_BUSD_1S'
 
 
@@ -90,3 +90,16 @@ class BtcBusdBaseCandle15M(BaseCandleMixin, Base):
 
 class BtcBusdBaseCandle1H(BaseCandleMixin, Base):
     __tablename__ = 'BTC_BUSD_1H'
+
+def factory_candole_class(symbol, duration):
+    if symbol == 'BTCBUSD':
+        if duration == '1s':
+            return BtcBusdBaseCandle1S
+        if duration == '1m':
+            return BtcBusdBaseCandle1M
+        if duration == '5m':
+            return BtcBusdBaseCandle5M
+        if duration == '15m':
+            return BtcBusdBaseCandle15M
+        if duration == '1h':
+            return BtcBusdBaseCandle1H

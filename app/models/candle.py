@@ -52,15 +52,15 @@ class BaseCandleMixin(object):
     @classmethod
     def get_all_candles(cls, limit=100):
         with session_scope() as session:
-             candles = session.query(cls).order_by(
-                 desc(cls.time)
-             ).limit(limit).all()
+            candles = session.query(cls).order_by(
+                desc(cls.time)
+            ).limit(limit).all()
 
-             if candles is None:
-                 return None
+            if candles is None:
+                return None
 
-             candles.reverse()
-             return candles
+            candles.reverse()
+            return candles
     @property
     def value(self):
         return {
@@ -91,7 +91,7 @@ class BtcBusdBaseCandle15M(BaseCandleMixin, Base):
 class BtcBusdBaseCandle1H(BaseCandleMixin, Base):
     __tablename__ = 'BTC_BUSD_1H'
 
-def factory_candole_class(symbol, duration):
+def factory_candle_class(symbol, duration):
     if symbol == 'BTCBUSD':
         if duration == '1s':
             return BtcBusdBaseCandle1S
@@ -103,3 +103,16 @@ def factory_candole_class(symbol, duration):
             return BtcBusdBaseCandle15M
         if duration == '1h':
             return BtcBusdBaseCandle1H
+
+def create_candle_widh_duration(candle):
+    cls = factory_candle_class(candle.symbol, candle.timeframe)
+    current_candle = cls.get(candle.time)
+    # DBに保存する処理
+    if current_candle is None:
+        # 作成
+        cls.create(candle.time, candle.open, candle.close, candle.high, candle.low, candle.volume)
+        print('created')
+    else:
+        # 更新
+        cls.save(candle.time, candle.open, candle.close, candle.high, candle.low, candle.volume)
+        print('saved')

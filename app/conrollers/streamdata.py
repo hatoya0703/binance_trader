@@ -1,11 +1,12 @@
 from functools import partial
 import logging
+import time
 
 from app.models.candle import create_candle_widh_duration
 from binance.binance import CandleStick, APIClient
 
 
-import settings
+import constans
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +18,13 @@ client = APIClient()
 class StreamData(object):
 
     def stream_ingestion_data(self):
-        client.get_candle_info(callback=self.trade)
+        while True:
+            time.sleep(1)
+            # symbolで回す
+            for symbol in constans.SYMBOLS:
+            # timeframeで回す
+                for timeframe in constans.DURATIONS:
+                    client.get_candle_info(symbol, timeframe, callback=self.trade)
 
     def trade(self, candle: CandleStick):
         logger.info(f'action=trade ticker={candle.__dict__}')

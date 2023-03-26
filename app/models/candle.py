@@ -18,7 +18,7 @@ class BaseCandleMixin(object):
     close = Column(Float)
     high = Column(Float)
     low = Column(Float)
-    volume = Column(Integer)
+    volume = Column(Float)
 
     @classmethod
     def create(cls, time, open, close, high, low, volume):
@@ -75,18 +75,14 @@ class BaseCandleMixin(object):
 class BtcBusdBaseCandle1S(BaseCandleMixin, Base):
     __tablename__ = 'BTC_BUSD_1S'
 
-
 class BtcBusdBaseCandle1M(BaseCandleMixin, Base):
     __tablename__ = 'BTC_BUSD_1M'
-
 
 class BtcBusdBaseCandle5M(BaseCandleMixin, Base):
     __tablename__ = 'BTC_BUSD_5M'
 
-
 class BtcBusdBaseCandle15M(BaseCandleMixin, Base):
     __tablename__ = 'BTC_BUSD_15M'
-
 
 class BtcBusdBaseCandle1H(BaseCandleMixin, Base):
     __tablename__ = 'BTC_BUSD_1H'
@@ -114,5 +110,10 @@ def create_candle_widh_duration(candle):
         print('created')
     else:
         # 更新
-        cls.save(candle.time, candle.open, candle.close, candle.high, candle.low, candle.volume)
+        current_candle.open = candle.open
+        current_candle.close = candle.close
+        current_candle.high = candle.high
+        current_candle.low = candle.low
+        current_candle.volume = candle.volume
+        current_candle.save()
         print('saved')

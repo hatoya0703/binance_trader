@@ -126,7 +126,7 @@ class APIClient(object):
             ticker =  Ticker(timestamp, bid, ask, volume)
             callback(ticker)
 
-    def get_candle_info(self, callback, symbol=settings.symbol, trade_duration=settings.trade_duration):
+    def get_candle_info(self, symbol, trade_duration, callback):
         try:
             resp = self.client.fetch_ohlcv(symbol=symbol, timeframe=trade_duration, limit=1)
             candle = CandleStick(

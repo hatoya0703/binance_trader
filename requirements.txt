@@ -1,5 +1,5 @@
 dict2obj==1.2.0
-Flask==1.0.2
+Flask
 numpy
 omitempty==0.1.1
 python-dateutil==2.8.0

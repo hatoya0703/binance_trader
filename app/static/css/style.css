@@ -1,0 +1,13 @@
+#dashboard_div{
+    width: 600px;
+    border: 1px solid #ccc;
+}
+
+#chart_div{
+    height:400px;
+    border-bottom: 1px solid #ccc;
+}
+
+#filter_div{
+    height:50px;
+}

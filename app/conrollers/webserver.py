@@ -7,7 +7,7 @@ import settings
 import constans
 from app.models.dfcandle import DataFrameCandle
 
-app = Flask(__name__, template_folder='../views')
+app = Flask(__name__, template_folder='../views', static_folder='../static')
 
 @app.teardown_appcontext
 def remove_session(ex=None):

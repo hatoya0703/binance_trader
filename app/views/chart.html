@@ -1,30 +1,25 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
-    <script type="text/javascript">
-        function send() {
-            var params = {
-                "symbol": "BTCBUSD",
-                "limit": "10",
-                "duration": "1m",
-            };
-            $.get("/api/candle/", params, function(data) {
-                let candles = data["candles"];
-                $("#dashboard_div").append(candles[0].open + "<br>")
-            });
-        }
-        setInterval(send, 1000 * 3);
-        window.onload = function() {
-            send();
-        }
-    </script>
+    <title>Chart</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 </head>
 <body>
-    <div id="dashboard_div"></div>
+
+<div>
+    <button onclick="changeDuration('1s');">1m</button>
+    <button onclick="changeDuration('1m');">1m</button>
+    <button onclick="changeDuration('5m');">5m</button>
+    <button onclick="changeDuration('15m');">5m</button>
+    <button onclick="changeDuration('1h');">1h</button>
+</div>
+
+<div id="dashboard_div">
+    <div id="chart_div"></div>
+    <div id="filter_div"></div>
+</div>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
-</html>

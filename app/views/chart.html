@@ -10,16 +10,24 @@
 <body>
 
 <div>
-    <button onclick="changeDuration('1s');">1m</button>
+    <button onclick="changeDuration('1s');">1s</button>
     <button onclick="changeDuration('1m');">1m</button>
     <button onclick="changeDuration('5m');">5m</button>
-    <button onclick="changeDuration('15m');">5m</button>
+    <button onclick="changeDuration('15m');">15m</button>
     <button onclick="changeDuration('1h');">1h</button>
+</div>
+
+<div>
+    SMA <input id="inputSma" type="checkbox">
+    Period<input id="inputSmaPeriod1" type="text" value="7" style="width: 15px;">
+    <input id="inputSmaPeriod2" type="text" value="14" style="width: 15px;">
+    <input id="inputSmaPeriod3" type="text" value="50" style="width: 15px;">
 </div>
 
 <div id="dashboard_div">
     <div id="chart_div"></div>
     <div id="filter_div"></div>
 </div>
+
 <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>

@@ -39,12 +39,32 @@ def api_make_handler():
 
     df = DataFrameCandle(symbole, duration)
     df.set_all_candles(limit)
-    return jsonify(df.value), 200 
-    # df = DataFrameCandle(settings.symbol, settings.trade_duration)
-    # df.set_all_candles(settings.past_period)
-    
-    # candles = df.candles
-    # return render_template('./google.html', candles=candles) 
+
+    sma = request.args.get('sma')
+    if sma:
+        str_sma_period1 = request.args.get('smaPeriod1')
+        str_sma_period2 = request.args.get('smaPeriod2')
+        str_sma_period3 = request.args.get('smaPeriod3')
+
+        if str_sma_period1:
+            period1 = int(str_sma_period1)
+        if str_sma_period2:
+            period2 = int(str_sma_period2)
+        if str_sma_period3:
+            period3 = int(str_sma_period3)
+
+        if not str_sma_period1 or period1 < 0:
+            period1 = 7
+        if not str_sma_period2 or period2 < 0:
+            period2 = 14
+        if not str_sma_period3 or period3 < 0:
+            period3 = 50
+        
+        df.add_sma(period1)
+        df.add_sma(period2)
+        df.add_sma(period3)
+
+    return jsonify(df.value), 200
 
 
 def start():

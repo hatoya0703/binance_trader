@@ -64,6 +64,30 @@ def api_make_handler():
         df.add_sma(period2)
         df.add_sma(period3)
 
+    ema = request.args.get('ema')
+    if ema:
+        str_ema_period1 = request.args.get('emaPeriod1')
+        str_ema_period2 = request.args.get('emaPeriod2')
+        str_ema_period3 = request.args.get('emaPeriod3')
+
+        if str_ema_period1:
+            period1 = int(str_ema_period1)
+        if str_ema_period2:
+            period2 = int(str_ema_period2)
+        if str_ema_period3:
+            period3 = int(str_ema_period3)
+
+        if not str_ema_period1 or period1 < 0:
+            period1 = 7
+        if not str_ema_period2 or period2 < 0:
+            period2 = 14
+        if not str_ema_period3 or period3 < 0:
+            period3 = 50
+        
+        df.add_ema(period1)
+        df.add_ema(period2)
+        df.add_ema(period3)
+
     return jsonify(df.value), 200
 
 

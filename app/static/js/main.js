@@ -21,12 +21,20 @@ var config = {
         periods: [],
         values: []
     },
+    ema: {
+        enable: false,
+        indexes: [],
+        periods: [],
+        values: []
+    },
 };
 
 function initConfigValues(){
     config.dataTable.index = 0;
     config.sma.indexes = [];
     config.sma.values = [];
+    config.ema.indexes = [];
+    config.ema.values = [];
 }
 
 function drawChart(dataTable) {
@@ -72,6 +80,13 @@ function drawChart(dataTable) {
         }
     }
 
+    if (config.ema.enable == true) {
+        for (i = 0; i < config.ema.indexes.length; i++) {
+            options.series[config.ema.indexes[i]] = {type: 'line'};
+            view.columns.push(config.candlestick.numViews + config.ema.indexes[i]);
+        }
+    }
+
     var controlWrapper = new google.visualization.ControlWrapper({
         'controlType': 'ChartRangeFilter',
         'containerId': 'filter_div',
@@ -108,6 +123,13 @@ function send () {
         params["smaPeriod3"] = config.sma.periods[2];
     }
 
+    if (config.ema.enable == true) {
+        params["ema"] = true;
+        params["emaPeriod1"] = config.ema.periods[0];
+        params["emaPeriod2"] = config.ema.periods[1];
+        params["emaPeriod3"] = config.ema.periods[2];
+    }
+
     $.get("/api/candle/", params).done(function (data) {
         initConfigValues();
         var dataTable = new google.visualization.DataTable();
@@ -129,6 +151,17 @@ function send () {
             }
         }
 
+        if (data["emas"] != undefined) {
+            for (i = 0; i < data['emas'].length; i++){
+                var emaData = data['emas'][i];
+                if (emaData.length == 0){ continue; }
+                config.dataTable.index += 1;
+                config.ema.indexes[i] = config.dataTable.index;
+                dataTable.addColumn('number', 'EMA' + emaData["period"].toString());
+                config.ema.values[i] = emaData["values"]
+            }
+        }
+
         var googleChartData = [];
         var candles = data["candles"];
 
@@ -143,6 +176,16 @@ function send () {
                         datas.push(null);
                     } else {
                         datas.push(config.sma.values[j][i]);
+                    }
+                }
+            }
+
+            if (data["emas"] != undefined) {
+                for (j = 0; j < config.ema.values.length; j++) {
+                    if (config.ema.values[j][i] == 0) {
+                        datas.push(null);
+                    } else {
+                        datas.push(config.ema.values[j][i]);
                     }
                 }
             }
@@ -189,6 +232,27 @@ window.onload = function () {
     });
     $("#inputSmaPeriod3").change(function() {
         config.sma.periods[2] = this.value;
+        send();
+    });
+
+    $('#inputEma').change(function() {
+        if (this.checked === true) {
+            config.ema.enable = true;
+        } else {
+            config.ema.enable = false;
+        }
+        send();
+    });
+    $("#inputEmaPeriod1").change(function() {
+        config.ema.periods[0] = this.value;
+        send();
+    });
+    $("#inputEmaPeriod2").change(function() {
+        config.ema.periods[1] = this.value;
+        send();
+    });
+    $("#inputEmaPeriod3").change(function() {
+        config.ema.periods[2] = this.value;
         send();
     });
 }

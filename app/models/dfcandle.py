@@ -83,17 +83,31 @@ class DataFrameCandle(object):
             values.append(candle.volume)
         return values
     
-    def add_sma(self, period: int):
+    
+# この関数はSimple Moving Average (SMA)を既存のSMAリストに追加します
+def add_sma(self, period: int):
+    
+    # SMAを計算するための元になるクローズ価格が十分あるかどうかを確認します
+    if(len(self.closes) > period):
+        
+        # TalibライブラリのSMA関数を使用して、SMAを計算します
+        values = talib.SMA(np.asarray(self.closes), period)
+        
+        # 新しいSmaクラスのインスタンスを作成し、期間と計算された値を設定します
+        sma = Sma(
+            period,
+            nan_to_zero(values).tolist()
+        )
+        
+        # 新しいSMAをSMAリストに追加します
+        self.smas.append(sma)
+        
+        # SMAが正常に追加されたことを示すTrueを返します
+        return True
+    
+    # クローズ価格が足りない場合はFalseを返します
+    return False
 
-        if(len(self.closes) > period):
-            values = talib.SMA(np.asarray(self.closes), period)
-            sma = Sma(
-                period,
-                nan_to_zero(values).tolist()
-            )
-            self.smas.append(sma)
-            return True
-        return False
     
     def add_ema(self, period: int):
 

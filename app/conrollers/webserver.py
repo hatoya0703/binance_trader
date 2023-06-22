@@ -88,6 +88,23 @@ def api_make_handler():
         df.add_ema(period2)
         df.add_ema(period3)
 
+    bbands = request.args.get('bbands')
+    if bbands:
+        str_n = request.args.get('bbandsN')
+        str_k = request.args.get('bbandsK')
+
+        if str_n:
+            n = int(str_n)
+        if str_k:
+            k = float(str_k)
+
+        if not str_n or n < 0 or n is None:
+            n = 20
+        if not str_k or k < 0 or k is None:
+            k = 2.0
+        
+        df.add_bbands(n, k)
+
     return jsonify(df.value), 200
 
 

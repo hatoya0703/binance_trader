@@ -25,6 +25,14 @@ class Ema(Serializer):
         self.period = period
         self.values = values
 
+class BBand(Serializer):
+    def __init__(self, n: int, k: float, up: list, mid: list, down: list):
+        self.n = n
+        self.k = k
+        self.up = up
+        self.mid = mid
+        self.down = down
+
 class DataFrameCandle(object):
     def __init__(self, symbol=settings.symbol, duration=settings.trade_duration):
         self.symbol = symbol
@@ -33,6 +41,7 @@ class DataFrameCandle(object):
         self.candles = []
         self.smas = []
         self.emas = []
+        self.bbands = (0, 0, [], [], [])
 
     def set_all_candles(self, limit=1000):
         self.candles = self.candle_cls.get_all_candles(limit)
@@ -45,7 +54,8 @@ class DataFrameCandle(object):
             'duration': self.duration,
             'candles': [c.value for c in self.candles],
             'smas': empty_to_none([s.value for s in self.smas]),
-            'emas': empty_to_none([s.value for s in self.emas])
+            'emas': empty_to_none([s.value for s in self.emas]),
+            'bbands': self.bbands.value,
         }
 
     @property
@@ -82,33 +92,31 @@ class DataFrameCandle(object):
         for candle in self.candles:
             values.append(candle.volume)
         return values
-    
-    
-# この関数はSimple Moving Average (SMA)を既存のSMAリストに追加します
-def add_sma(self, period: int):
-    
-    # SMAを計算するための元になるクローズ価格が十分あるかどうかを確認します
-    if(len(self.closes) > period):
-        
-        # TalibライブラリのSMA関数を使用して、SMAを計算します
-        values = talib.SMA(np.asarray(self.closes), period)
-        
-        # 新しいSmaクラスのインスタンスを作成し、期間と計算された値を設定します
-        sma = Sma(
-            period,
-            nan_to_zero(values).tolist()
-        )
-        
-        # 新しいSMAをSMAリストに追加します
-        self.smas.append(sma)
-        
-        # SMAが正常に追加されたことを示すTrueを返します
-        return True
-    
-    # クローズ価格が足りない場合はFalseを返します
-    return False
 
-    
+    # この関数はSimple Moving Average (SMA)を既存のSMAリストに追加します
+    def add_sma(self, period: int):
+        
+        # SMAを計算するための元になるクローズ価格が十分あるかどうかを確認します
+        if(len(self.closes) > period):
+            
+            # TalibライブラリのSMA関数を使用して、SMAを計算します
+            values = talib.SMA(np.asarray(self.closes), period)
+            
+            # 新しいSmaクラスのインスタンスを作成し、期間と計算された値を設定します
+            sma = Sma(
+                period,
+                nan_to_zero(values).tolist()
+            )
+            
+            # 新しいSMAをSMAリストに追加します
+            self.smas.append(sma)
+            
+            # SMAが正常に追加されたことを示すTrueを返します
+            return True
+        
+        # クローズ価格が足りない場合はFalseを返します
+        return False
+
     def add_ema(self, period: int):
 
         if(len(self.closes) > period):
@@ -118,5 +126,15 @@ def add_sma(self, period: int):
                 nan_to_zero(values).tolist()
             )
             self.emas.append(ema)
+            return True
+        return False
+    
+    def add_bbands(self, n: int, k: float):
+        if n < len(self.closes):
+            up, mid, down = talib.BBANDS(np.asarray(self.closes), n, k, k, 0)
+            up_list = nan_to_zero(up).tolist()
+            mid_list = nan_to_zero(mid).tolist()
+            down_list = nan_to_zero(down).tolist()
+            self.bbands = BBand(n, k, up_list, mid_list, down_list)
             return True
         return False

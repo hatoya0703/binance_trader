@@ -105,6 +105,10 @@ def api_make_handler():
         
         df.add_bbands(n, k)
 
+    ichimoku = request.args.get('ichimoku')
+    if ichimoku:
+        df.add_ichimoku()
+
     return jsonify(df.value), 200
 
 

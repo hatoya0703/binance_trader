@@ -5,7 +5,7 @@ import talib
 from app.models.candle import factory_candle_class
 import settings
 from utils.utils import Serializer
-from trading_algo import ichimoku_cloud
+from trading_algo.algo import ichimoku_cloud
 
 def nan_to_zero(values: np.asarray):
     values[np.isnan(values)] = 0
@@ -26,7 +26,7 @@ class Ema(Serializer):
         self.period = period
         self.values = values
 
-class BBand(Serializer):
+class BBands(Serializer):
     def __init__(self, n: int, k: float, up: list, mid: list, down: list):
         self.n = n
         self.k = k
@@ -50,8 +50,8 @@ class DataFrameCandle(object):
         self.candles = []
         self.smas = []
         self.emas = []
-        self.bbands = (0, 0, [], [], [])
-        self.ichimoku_cloud = ([], [], [], [], [])
+        self.bbands = BBands(0, 0, [], [], [])
+        self.ichimoku_cloud = IchimokuCloud([], [], [], [], [])
 
     def set_all_candles(self, limit=1000):
         self.candles = self.candle_cls.get_all_candles(limit)
@@ -146,7 +146,7 @@ class DataFrameCandle(object):
             up_list = nan_to_zero(up).tolist()
             mid_list = nan_to_zero(mid).tolist()
             down_list = nan_to_zero(down).tolist()
-            self.bbands = BBand(n, k, up_list, mid_list, down_list)
+            self.bbands = BBands(n, k, up_list, mid_list, down_list)
             return True
         return False
     

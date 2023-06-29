@@ -185,6 +185,10 @@ function send () {
         params["bbandsK"] = config.bbands.k;
     }
 
+    if (config.ichimoku.enable == true) {
+        params["ichimoku"] = true;
+    }
+
     $.get("/api/candle/", params).done(function (data) {
         initConfigValues();
         var dataTable = new google.visualization.DataTable();

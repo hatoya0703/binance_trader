@@ -45,6 +45,11 @@ var config = {
         senkouB: [],
         chikou: []
     },
+    volume: {
+        enable: false,
+        index: [],
+        values: []
+    },
 };
 
 function initConfigValues(){
@@ -63,6 +68,7 @@ function initConfigValues(){
     config.ichimoku.senkouA= [];
     config.ichimoku.senkouB= [];
     config.ichimoku.chikou = [];
+    config.volume.index = [];
 }
 
 function drawChart(dataTable) {
@@ -134,6 +140,29 @@ function drawChart(dataTable) {
             };
             view.columns.push(config.candlestick.numViews + config.ichimoku.indexes[i]);
         }
+    }
+
+    if (config.volume.enable == true) {
+        if ($('#volume_div').length == 0) {
+            $('#technical_div').append(
+                    "<div id='volume_div' class='bottom_chart'>" +
+                    "<span class='technical_title'>Volume</span>" +
+                    "<div id='volume_chart'></div>" +
+                    "</div>")
+        }
+        var volumeChart = new google.visualization.ChartWrapper({
+            'chartType': 'ColumnChart',
+            'containerId': 'volume_chart',
+            'options': {
+                'hAxis': {'slantedText': false},
+                'legend': {'position': 'none'},
+                'series': {}
+            },
+            'view': {
+                'columns': [ { 'type': 'string' }, 5]
+            }
+        });
+        charts.push(volumeChart)
     }
 
     var controlWrapper = new google.visualization.ControlWrapper({
@@ -345,7 +374,6 @@ function send () {
                     datas.push(config.ichimoku.chikou[i]);
                 }
             }
-
             googleChartData.push(datas)
         }
 
@@ -436,6 +464,16 @@ window.onload = function () {
             config.ichimoku.enable = false;
         }
         send();
+    });
+
+    $('#inputVolume').change(function() {
+        if (this.checked === true) {
+            config.volume.enable = true;
+            drawChart(config.dataTable.value);
+        } else {
+            config.volume.enable = false;
+            $('#volume_div').remove();
+        }
     });
 
 }

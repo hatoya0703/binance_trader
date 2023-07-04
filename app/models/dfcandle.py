@@ -57,6 +57,7 @@ class DataFrameCandle(object):
         self.emas = []
         self.bbands = BBands(0, 0, [], [], [])
         self.ichimoku_cloud = IchimokuCloud([], [], [], [], [])
+        self.rsi = Rsi(0, [])
 
     def set_all_candles(self, limit=1000):
         self.candles = self.candle_cls.get_all_candles(limit)

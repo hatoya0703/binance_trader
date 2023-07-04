@@ -42,6 +42,11 @@ class IchimokuCloud(Serializer):
         self.senkou_b = senkou_b
         self.chikou = chikou
 
+class Rsi(Serializer):
+    def __init__(self, period: int, values: list):
+        self.period = period
+        self.values = values
+
 class DataFrameCandle(object):
     def __init__(self, symbol=settings.symbol, duration=settings.trade_duration):
         self.symbol = symbol

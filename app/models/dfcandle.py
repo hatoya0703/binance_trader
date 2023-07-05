@@ -165,7 +165,6 @@ class DataFrameCandle(object):
         return False
     
     def add_rsi(self, period: int):
-
         if(len(self.closes) > period):
             values = talib.RSI(np.asarray(self.closes), period)
             rsi = Rsi(

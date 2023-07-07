@@ -3,10 +3,10 @@ google.charts.load('current', {'packages':['corechart', 'controls']});
 var config = {
     api:{
         enable: true,
-        interval: 1000 * 1
+        interval: 1000 * 3
     },
     candlestick:{
-        symbol: 'BTCBUSD',
+        product_code: 'USD_JPY',
         duration: '1m',
         limit: 365,
         numViews: 5,
@@ -50,6 +50,14 @@ var config = {
         index: [],
         values: []
     },
+    rsi: {
+        enable: false,
+        indexes: {'up': 0, 'value': 0, 'down': 0},
+        period: 14,
+        up: 70,
+        values: [],
+        down: 30
+    },
 };
 
 function initConfigValues(){
@@ -69,6 +77,7 @@ function initConfigValues(){
     config.ichimoku.senkouB= [];
     config.ichimoku.chikou = [];
     config.volume.index = [];
+    config.rsi.indexes = [];
 }
 
 function drawChart(dataTable) {
@@ -165,6 +174,35 @@ function drawChart(dataTable) {
         charts.push(volumeChart)
     }
 
+    if (config.rsi.enable == true) {
+        if ($('#rsi_div').length == 0) {
+            $('#technical_div').append(
+                    "<div id='rsi_div' class='bottom_chart'>" +
+                    "<span class='technical_title'>RSI</span>" +
+                    "<div id='rsi_chart'></div>" +
+                    "</div>")
+        }
+        var up = config.candlestick.numViews + config.rsi.indexes['up'];
+        var value = config.candlestick.numViews + config.rsi.indexes['value'];
+        var down = config.candlestick.numViews + config.rsi.indexes['down'];
+        var rsiChart = new google.visualization.ChartWrapper({
+            'chartType': 'LineChart',
+            'containerId': 'rsi_chart',
+            'options': {
+                'hAxis': {'slantedText': false},
+                'legend': {'position': 'none'},
+                'series': {
+                    0: {color: 'black', lineWidth: 1},
+                    1: {color: '#e2431e'},
+                    2: {color: 'black', lineWidth: 1}
+                }
+            },
+            'view': {
+                'columns': [ { 'type': 'string' }, up, value, down]
+            }
+        });
+        charts.push(rsiChart)
+    }
     var controlWrapper = new google.visualization.ControlWrapper({
         'controlType': 'ChartRangeFilter',
         'containerId': 'filter_div',
@@ -189,9 +227,9 @@ function send () {
         return
     }
     var params = {
-        symbol: config.candlestick.symbol,
-        limit: config.candlestick.limit,
-        duration: config.candlestick.duration,
+        "product_code": config.candlestick.product_code,
+        "limit": config.candlestick.limit,
+        "duration": config.candlestick.duration,
     };
 
     if (config.sma.enable == true) {
@@ -216,6 +254,11 @@ function send () {
 
     if (config.ichimoku.enable == true) {
         params["ichimoku"] = true;
+    }
+
+    if (config.rsi.enable == true) {
+        params["rsi"] = true;
+        params["rsiPeriod"] = config.rsi.period;
     }
 
     $.get("/api/candle/", params).done(function (data) {
@@ -301,6 +344,20 @@ function send () {
             dataTable.addColumn('number', 'Chikou');
         }
 
+        if (data['rsi'] != undefined ){
+            config.dataTable.index += 1;
+            config.rsi.indexes['up'] = config.dataTable.index;
+            config.dataTable.index += 1;
+            config.rsi.indexes['value'] = config.dataTable.index;
+            config.dataTable.index += 1;
+            config.rsi.indexes['down'] = config.dataTable.index;
+            config.rsi.period = data['rsi']['period'];
+            config.rsi.values = data['rsi']['values'];
+            dataTable.addColumn('number', 'RSI Thread');
+            dataTable.addColumn('number', 'RSI(' + config.rsi.period + ')');
+            dataTable.addColumn('number', 'RSI Thread');
+        }
+
         var googleChartData = [];
         var candles = data["candles"];
 
@@ -374,6 +431,17 @@ function send () {
                     datas.push(config.ichimoku.chikou[i]);
                 }
             }
+
+            if (data["rsi"] != undefined){
+                datas.push(config.rsi.up);
+                if (config.rsi.values[i] == 0) {
+                    datas.push(null);
+                }else{
+                    datas.push(config.rsi.values[i]);
+                }
+                datas.push(config.rsi.down);
+            }
+
             googleChartData.push(datas)
         }
 
@@ -405,7 +473,6 @@ window.onload = function () {
         }
         send();
     });
-
     $("#inputSmaPeriod1").change(function() {
         config.sma.periods[0] = this.value;
         send();
@@ -474,6 +541,20 @@ window.onload = function () {
             config.volume.enable = false;
             $('#volume_div').remove();
         }
+    });
+
+    $('#inputRsi').change(function() {
+        if (this.checked === true) {
+            config.rsi.enable = true;
+        } else {
+            config.rsi.enable = false;
+            $('#rsi_div').remove();
+        }
+        send();
+    });
+    $("#inputRsiPeriod").change(function() {
+        config.rsi.period = this.value;
+        send();
     });
 
 }

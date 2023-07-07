@@ -171,6 +171,6 @@ class DataFrameCandle(object):
                 period,
                 nan_to_zero(values).tolist()
             )
-            self.rsi(rsi)
+            self.rsi= rsi
             return True
         return False

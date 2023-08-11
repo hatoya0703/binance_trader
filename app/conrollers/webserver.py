@@ -112,11 +112,11 @@ def api_make_handler():
     rsi = request.args.get('rsi')
     if rsi:
         str_period = request.args.get('rsiPeriod')
-    if str_period:
-        period = int(str_period) 
-    else:
-        period = 14
-    df.add_rsi(period)
+        if str_period:
+            period = int(str_period) 
+        else:
+            period = 14
+        df.add_rsi(period)
 
     return jsonify(df.value), 200
 

@@ -183,3 +183,29 @@ class DataFrameCandle(object):
             self.rsi= rsi
             return True
         return False
+    
+    # この関数は、移動平均収束拡散（MACD）インジケーターをオブジェクトに追加します。
+    
+    def add_macd(self, fast_period:int, slow_period:int, signal_period:int):
+    
+        # 計算に十分なローソク足があるかどうかをチェックします。
+        if len(self.candles) > 1:
+            # talibライブラリを使用してMACDを計算します。
+            macd, macd_signal, macd_hist = talib.MACD(
+                np.asarray(self.closes), fast_period, slow_period, signal_period)
+    
+            # 配列内のNaN値をゼロに変換します。
+            macd_list = nan_to_zero(macd).tolist()
+            macd_signal_list = nan_to_zero(macd_signal).tolist()
+            macd_hist_list = nan_to_zero(macd_hist).tolist()
+    
+            # 計算された値で新しいMacdオブジェクトを作成します。
+            self.macd = Macd(
+                fast_period, slow_period, signal_period, macd_list, macd_signal_list, macd_hist_list)
+    
+            # MACDが正常に追加されたことを示すためにTrueを返します。
+            return True
+        
+        # 計算に十分なローソク足がない場合はFalseを返します。
+        return False
+    

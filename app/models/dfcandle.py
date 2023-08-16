@@ -47,6 +47,15 @@ class Rsi(Serializer):
         self.period = period
         self.values = values
 
+class Macd(Serializer):
+    def __init__(self, fast_period:int, slow_period:int, signal_period:int, macd:list, macd_signal:list, macd_hist:list):
+        self.fast_period = fast_period
+        self.slow_period = slow_period
+        self.signal_period = signal_period
+        self.macd = macd
+        self.macd_signal = macd_signal
+        self.macd_hist = macd_hist
+
 class DataFrameCandle(object):
     def __init__(self, symbol=settings.symbol, duration=settings.trade_duration):
         self.symbol = symbol

@@ -67,6 +67,7 @@ class DataFrameCandle(object):
         self.bbands = BBands(0, 0, [], [], [])
         self.ichimoku_cloud = IchimokuCloud([], [], [], [], [])
         self.rsi = Rsi(0, [])
+        self.macd = Macd(0, 0, 0, [], [], [])
 
     def set_all_candles(self, limit=1000):
         self.candles = self.candle_cls.get_all_candles(limit)
@@ -82,7 +83,8 @@ class DataFrameCandle(object):
             'emas': empty_to_none([s.value for s in self.emas]),
             'bbands': self.bbands.value,
             'ichimoku_cloud': self.ichimoku_cloud.value,
-            'rsi': self.rsi.value
+            'rsi': self.rsi.value,
+            'macd': self.macd.value,
         }
 
     @property

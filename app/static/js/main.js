@@ -58,6 +58,12 @@ var config = {
         values: [],
         down: 30
     },
+    macd: {
+        enable: false,
+        indexes: [],
+        periods: [],
+        values: []
+    },
 };
 
 function initConfigValues(){
@@ -78,6 +84,9 @@ function initConfigValues(){
     config.ichimoku.chikou = [];
     config.volume.index = [];
     config.rsi.indexes = [];
+    config.macd.indexes = [];
+    config.macd.periods = [];
+    config.macd.values = [];
 }
 
 function drawChart(dataTable) {
@@ -203,6 +212,39 @@ function drawChart(dataTable) {
         });
         charts.push(rsiChart)
     }
+
+    if (config.macd.enable == true) {
+        if (config.macd.indexes.length == 0) { return }
+        if ($('#macd_div').length == 0) {
+            $('#technical_div').append(
+                    "<div id='macd_div'>" +
+                    "<span class='technical_title'>MACD</span>" +
+                    "<div id='macd_chart'></div>" +
+                    "</div>")
+        }
+        var macdColumns = [{'type': 'string'}];
+
+        macdColumns.push(config.candlestick.numViews + config.macd.indexes[2]);
+        macdColumns.push(config.candlestick.numViews + config.macd.indexes[0]);
+        macdColumns.push(config.candlestick.numViews + config.macd.indexes[1]);
+        var macdChart = new google.visualization.ChartWrapper({
+            'chartType': 'ComboChart',
+            'containerId': 'macd_chart',
+            'options': {
+                legend: {'position': 'none'},
+                seriesType: "bars",
+                series: {
+                    1: {type: 'line', lineWidth: 1 },
+                    2: {type: 'line', lineWidth: 1}
+                }
+            },
+            'view': {
+                'columns': macdColumns
+            }
+        });
+        charts.push(macdChart)
+    }
+
     var controlWrapper = new google.visualization.ControlWrapper({
         'controlType': 'ChartRangeFilter',
         'containerId': 'filter_div',
@@ -259,6 +301,13 @@ function send () {
     if (config.rsi.enable == true) {
         params["rsi"] = true;
         params["rsiPeriod"] = config.rsi.period;
+    }
+
+    if (config.macd.enable == true) {
+        params["macd"] = true;
+        params["macdPeriod1"] = config.macd.periods[0];
+        params["macdPeriod2"] = config.macd.periods[1];
+        params["macdPeriod3"] = config.macd.periods[2];
     }
 
     $.get("/api/candle/", params).done(function (data) {
@@ -358,6 +407,33 @@ function send () {
             dataTable.addColumn('number', 'RSI Thread');
         }
 
+        if (data['macd'] != undefined) {
+            var macdData = data['macd'];
+            var fast_period = macdData["fast_period"].toString();
+            var slow_period = macdData["slow_period"].toString();
+            var signal_period = macdData["signal_period"].toString();
+            var macd = macdData["macd"];
+            var macd_signal = macdData["macd_signal"];
+            var macd_hist = macdData["macd_hist"];
+
+            config.dataTable.index += 1;
+            config.macd.indexes[0] = config.dataTable.index;
+            config.dataTable.index += 1;
+            config.macd.indexes[1] = config.dataTable.index;
+            config.dataTable.index += 1;
+            config.macd.indexes[2] = config.dataTable.index;
+            var speriods = '(' + fast_period + ',' + slow_period + ',' + signal_period +')';
+            dataTable.addColumn('number', 'MD' + speriods);
+            dataTable.addColumn('number', 'MS' + speriods);
+            dataTable.addColumn('number', 'HT' + speriods);
+            config.macd.values[0] = macd;
+            config.macd.values[1] = macd_signal;
+            config.macd.values[2] = macd_hist;
+            config.macd.periods[0] = fast_period;
+            config.macd.periods[1] = slow_period;
+            config.macd.periods[2] = signal_period;
+        }
+
         var googleChartData = [];
         var candles = data["candles"];
 
@@ -440,6 +516,16 @@ function send () {
                     datas.push(config.rsi.values[i]);
                 }
                 datas.push(config.rsi.down);
+            }
+
+            if (data["macd"] != undefined) {
+                for (j = 0; j < config.macd.values.length; j++) {
+                    if (config.macd.values[j][i] == 0) {
+                        datas.push(null);
+                    } else {
+                        datas.push(config.macd.values[j][i]);
+                    }
+                }
             }
 
             googleChartData.push(datas)
@@ -555,6 +641,28 @@ window.onload = function () {
     });
     $("#inputRsiPeriod").change(function() {
         config.rsi.period = this.value;
+        send();
+    });
+
+    $('#inputMacd').change(function() {
+        if (this.checked === true) {
+            config.macd.enable = true;
+        } else {
+            $('#macd_div').remove();
+            config.macd.enable = false;
+        }
+        send();
+    });
+    $("#inputMacdPeriod1").change(function() {
+        config.macd.periods[0] = this.value;
+        send();
+    });
+    $("#inputMacdPeriod2").change(function() {
+        config.macd.periods[1] = this.value;
+        send();
+    });
+    $("#inputMacdPeriod3").change(function() {
+        config.macd.periods[2] = this.value;
         send();
     });
 

@@ -26,4 +26,5 @@ def session_scope():
 
 def init_db():
     import app.models.candle
+    import app.models.events
     Base.metadata.create_all(bind=engine)

@@ -4,7 +4,7 @@ from flask import request
 from flask import jsonify
 
 import settings
-import constans
+import constants
 from app.models.dfcandle import DataFrameCandle
 
 app = Flask(__name__, template_folder='../views', static_folder='../static')
@@ -35,7 +35,7 @@ def api_make_handler():
 
     duration = request.args.get('duration')
     if not duration:
-        duration = constans.DURATION_5M
+        duration = constants.DURATION_5M
 
     df = DataFrameCandle(symbole, duration)
     df.set_all_candles(limit)
